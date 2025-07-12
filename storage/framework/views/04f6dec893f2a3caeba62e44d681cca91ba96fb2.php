@@ -20,4 +20,4 @@
 
 
   </nav>
-<?php /**PATH /home/u167651649/domains/mutasemjaber.online/public_html/yaman/resources/views/admin/includes/navbar.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\xampp\htdocs\yaman\resources\views/admin/includes/navbar.blade.php ENDPATH**/ ?>

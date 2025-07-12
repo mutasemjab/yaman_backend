@@ -92,6 +92,19 @@
                         </a>
                     </li>
                 <?php endif; ?>
+          
+                <?php if(
+                    $user->can('branch-categories-table') ||
+                        $user->can('branch-categories-add') ||
+                        $user->can('branch-categories-edit') ||
+                        $user->can('branch-categories-delete')): ?>
+                    <li class="nav-item">
+                        <a href="<?php echo e(route('branch-categories.index')); ?>" class="nav-link">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p> <?php echo e(__('messages.Branch Categories Management')); ?>  </p>
+                        </a>
+                    </li>
+                <?php endif; ?>
 
 
                   <?php if(
@@ -218,4 +231,4 @@
     </div>
     <!-- /.sidebar -->
 </aside>
-<?php /**PATH /home/u167651649/domains/mutasemjaber.online/public_html/yaman/resources/views/admin/includes/sidebar.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\xampp\htdocs\yaman\resources\views/admin/includes/sidebar.blade.php ENDPATH**/ ?>

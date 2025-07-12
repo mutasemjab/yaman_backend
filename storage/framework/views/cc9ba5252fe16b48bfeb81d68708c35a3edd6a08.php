@@ -71,4 +71,4 @@ scratch. This page gets rid of all links and provides the needed markup only.
 </body>
 
 </html>
-<?php /**PATH /home/u167651649/domains/mutasemjaber.online/public_html/yaman/resources/views/layouts/admin.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\xampp\htdocs\yaman\resources\views/layouts/admin.blade.php ENDPATH**/ ?>

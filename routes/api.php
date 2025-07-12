@@ -51,9 +51,17 @@ Route::get('/branches', [BranchController::class,'index']); // Done
    Route::get('/products', [ProductController::class,'index']); // Done
    Route::get('/products/{id}', [ProductController::class,'productDetails']); // Done
 
-   //Category product
-   Route::get('/categories/{id}/products',  [CategoryController::class,'getProducts']); // Done
-   Route::get('/categories/{id}', [CategoryController::class,'index']); // Done
+    //Category product
+    Route::get('/categories/branch/{id}', [CategoryController::class, 'index']);
+    
+    // Get products for a specific category (with optional branch filter)
+    // Usage: /api/categories/{categoryId}/products?branch_id={branchId}
+    Route::get('/categories/{categoryId}/products', [CategoryController::class, 'getProducts']);
+    
+    
+    // Get category with its products for a specific branch
+    Route::get('/branches/{branchId}/categories/{categoryId}', [CategoryController::class, 'getCategoryWithProducts'])
+        ->name('api.branches.category-products');
 
 
     //---------------- Auth --------------------//

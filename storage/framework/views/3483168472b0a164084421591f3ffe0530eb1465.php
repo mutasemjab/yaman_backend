@@ -5,4 +5,4 @@
   </div>
   <?php endif; ?>
 
-  <?php /**PATH /home/u167651649/domains/mutasemjaber.online/public_html/yaman/resources/views/admin/includes/alerts/success.blade.php ENDPATH**/ ?>
+  <?php /**PATH C:\xampp\htdocs\yaman\resources\views/admin/includes/alerts/success.blade.php ENDPATH**/ ?>

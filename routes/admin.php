@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\ProductReviewController;
 use App\Http\Controllers\Admin\OfferController;
 use App\Http\Controllers\Admin\BannerController;
+use App\Http\Controllers\Admin\BranchCategoryController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\BranchController;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
@@ -89,8 +90,16 @@ Route::resource('coupons', CouponController::class);
 Route::resource('deliveries', DeliveryController::class);
 Route::resource('settings', SettingController::class);
 Route::resource('branches', BranchController::class);
+Route::resource('branch-categories', BranchCategoryController::class);
 
+Route::get('/api/products-by-category', [BranchCategoryController::class, 'getProductsByCategory'])
+    ->name('api.products-by-category');
 
+Route::delete('/api/branch-category/remove', [BranchCategoryController::class, 'removeCategory'])
+    ->name('api.branch-category.remove');
+
+Route::delete('/api/branch-product/remove', [BranchCategoryController::class, 'removeProduct'])
+    ->name('api.branch-product.remove');
 
 });
 

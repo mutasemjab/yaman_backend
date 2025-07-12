@@ -97,6 +97,19 @@
                         </a>
                     </li>
                 @endif
+          
+                @if (
+                    $user->can('branch-categories-table') ||
+                        $user->can('branch-categories-add') ||
+                        $user->can('branch-categories-edit') ||
+                        $user->can('branch-categories-delete'))
+                    <li class="nav-item">
+                        <a href="{{ route('branch-categories.index') }}" class="nav-link">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p> {{__('messages.Branch Categories Management')}}  </p>
+                        </a>
+                    </li>
+                @endif
 
 
                   @if (

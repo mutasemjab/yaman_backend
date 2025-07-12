@@ -10,4 +10,4 @@
 
     </div>
 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-<?php /**PATH /home/u167651649/domains/mutasemjaber.online/public_html/yaman/resources/views/admin/includes/alerts/error.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\xampp\htdocs\yaman\resources\views/admin/includes/alerts/error.blade.php ENDPATH**/ ?>

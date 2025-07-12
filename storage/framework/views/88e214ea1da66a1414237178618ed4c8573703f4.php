@@ -6,4 +6,4 @@
     <!-- Default to the left -->
     <strong>Copyright &copy; 2023 <a href="">BabAlyamanAlsaed</a>.</strong> All rights reserved.
   </footer>
-<?php /**PATH /home/u167651649/domains/mutasemjaber.online/public_html/yaman/resources/views/admin/includes/footer.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\xampp\htdocs\yaman\resources\views/admin/includes/footer.blade.php ENDPATH**/ ?>
