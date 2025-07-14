@@ -90,7 +90,14 @@ Route::resource('coupons', CouponController::class);
 Route::resource('deliveries', DeliveryController::class);
 Route::resource('settings', SettingController::class);
 Route::resource('branches', BranchController::class);
-Route::resource('branch-categories', BranchCategoryController::class);
+
+Route::get('/branch-categories', [BranchCategoryController::class, 'index'])->name('branch-categories.index');
+Route::get('/branch-categories/create', [BranchCategoryController::class, 'create'])->name('branch-categories.create');
+Route::post('/branch-categories', [BranchCategoryController::class, 'store'])->name('branch-categories.store');
+Route::get('/branch-categories/{id}', [BranchCategoryController::class, 'show'])->name('branch-categories.show');
+Route::get('/branch-categories/{id}/edit', [BranchCategoryController::class, 'edit'])->name('branch-categories.edit');
+Route::put('/branch-categories/{id}', [BranchCategoryController::class, 'update'])->name('branch-categories.update');
+Route::delete('/branch-categories/{id}', [BranchCategoryController::class, 'destroy'])->name('branch-categories.destroy');
 
 Route::get('/api/products-by-category', [BranchCategoryController::class, 'getProductsByCategory'])
     ->name('api.products-by-category');
@@ -100,6 +107,11 @@ Route::delete('/api/branch-category/remove', [BranchCategoryController::class, '
 
 Route::delete('/api/branch-product/remove', [BranchCategoryController::class, 'removeProduct'])
     ->name('api.branch-product.remove');
+Route::post('/branch-categories/update-category-order', [BranchCategoryController::class, 'updateCategoryOrder'])
+    ->name('branch-categories.update-category-order');
+
+Route::post('/branch-categories/update-product-order', [BranchCategoryController::class, 'updateProductOrder'])
+    ->name('branch-categories.update-product-order');
 
 });
 

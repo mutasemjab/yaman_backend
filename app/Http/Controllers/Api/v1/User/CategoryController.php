@@ -11,10 +11,11 @@ use App\Models\Branch;
 use App\Models\BranchCategory;
 use App\Models\BranchProduct;
 
+
 class CategoryController extends Controller
 {
     /**
-     * Get categories for a specific branch
+     * Get categories for a specific branch ordered by their order column
      * 
      * @param int $id Branch ID
      * @return \Illuminate\Http\JsonResponse
@@ -35,8 +36,12 @@ class CategoryController extends Controller
                 ], 404);
             }
             
-            // Get parent categories assigned to this specific branch using scopes
-            $cats = Category::forBranch($branchId)
+            // Get categories assigned to this branch ordered by the order column
+            $cats = Category::join('branch_categories', 'categories.id', '=', 'branch_categories.category_id')
+                    ->where('branch_categories.branch_id', $branchId)
+                    ->orderBy('branch_categories.order', 'asc')
+                    ->orderBy('categories.name_en', 'asc') // Secondary sort by name
+                    ->select('categories.*', 'branch_categories.order as branch_order')
                     ->get();
             
             // If no categories found for this branch, return empty array
@@ -50,17 +55,18 @@ class CategoryController extends Controller
             
         } else {
             // Get all categories if no branch specified (fallback)
-            $cats = Category::get();
+            $cats = Category::orderBy('name_en')->get();
         }
         
-        // Transform data to include localized names
+        // Transform data to include localized names and order
         $transformedCats = $cats->map(function($category) {
             return [
                 'id' => $category->id,
                 'name' => app()->getLocale() === 'ar' ? $category->name_ar : $category->name_en,
                 'name_en' => $category->name_en,
                 'name_ar' => $category->name_ar,
-                'photo' => $category->photo,             
+                'photo' => $category->photo,
+                'order' => $category->branch_order ?? 0, // Include order from branch_categories
             ];
         });
         
@@ -71,7 +77,7 @@ class CategoryController extends Controller
     }
 
     /**
-     * Get products for a specific category within a specific branch
+     * Get products for a specific category within a specific branch ordered by their order column
      * 
      * @param int $categoryId Category ID
      * @param int|null $branchId Branch ID (optional, can be passed as query parameter)
@@ -82,14 +88,15 @@ class CategoryController extends Controller
         $branchId = $request->query('branch_id');
         
         if ($branchId) {
-            // Get products that belong to both the category and the branch
+            // Get products that belong to both the category and the branch, ordered by branch_products.order
             $products = Product::with(['productImages', 'productReviews', 'variations', 'category'])
-                             ->where('category_id', $categoryId)
-                             ->whereHas('branches', function($query) use ($branchId) {
-                                 $query->where('branch_id', $branchId);
-                             })
-                             ->where('status', 1) // Only active products
-                             ->orderBy('name_en')
+                             ->join('branch_products', 'products.id', '=', 'branch_products.product_id')
+                             ->where('products.category_id', $categoryId)
+                             ->where('branch_products.branch_id', $branchId)
+                             ->where('products.status', 1) // Only active products
+                             ->orderBy('branch_products.order', 'asc')
+                             ->orderBy('products.name_en', 'asc') // Secondary sort by name
+                             ->select('products.*', 'branch_products.order as branch_order')
                              ->get();
         } else {
             // Fallback: Get all products in category (original behavior)
@@ -110,7 +117,7 @@ class CategoryController extends Controller
             ]);
         }
         
-        // Transform products to include localized data
+        // Transform products to include localized data and order
         $transformedProducts = $products->map(function($product) {
             return [
                 'id' => $product->id,
@@ -133,6 +140,7 @@ class CategoryController extends Controller
                 'attribute' => $product->attribute,
                 'category_id' => $product->category_id,
                 'unit_id' => $product->unit_id,
+                'order' => $product->branch_order ?? 0, // Include order from branch_products
                 'category' => [
                     'id' => $product->category->id,
                     'name' => app()->getLocale() === 'ar' ? $product->category->name_ar : $product->category->name_en,
@@ -151,9 +159,12 @@ class CategoryController extends Controller
         ]);
     }
 
+    /**
+     * Get category with its products ordered by their respective order columns
+     */
      public function getCategoryWithProducts($categoryId, $branchId)
     {
-        // Check if category is assigned to this branch
+        // Check if category is assigned to this branch and get its order
         $branchCategory = BranchCategory::where('branch_id', $branchId)
                                        ->where('category_id', $categoryId)
                                        ->first();
@@ -166,13 +177,7 @@ class CategoryController extends Controller
             ], 404);
         }
         
-        $category = Category::with([
-            'products' => function($query) use ($branchId) {
-                $query->whereHas('branches', function($branchQuery) use ($branchId) {
-                    $branchQuery->where('branch_id', $branchId);
-                })->where('status', 1);
-            }
-        ])->find($categoryId);
+        $category = Category::find($categoryId);
         
         if (!$category) {
             return response()->json([
@@ -181,6 +186,17 @@ class CategoryController extends Controller
                 'data' => []
             ], 404);
         }
+        
+        // Get products for this category in this branch, ordered by branch_products.order
+        $products = Product::with(['productImages', 'productReviews', 'variations'])
+                          ->join('branch_products', 'products.id', '=', 'branch_products.product_id')
+                          ->where('products.category_id', $categoryId)
+                          ->where('branch_products.branch_id', $branchId)
+                          ->where('products.status', 1)
+                          ->orderBy('branch_products.order', 'asc')
+                          ->orderBy('products.name_en', 'asc')
+                          ->select('products.*', 'branch_products.order as branch_order')
+                          ->get();
         
         return response()->json([
             'success' => true,
@@ -191,15 +207,34 @@ class CategoryController extends Controller
                     'name_en' => $category->name_en,
                     'name_ar' => $category->name_ar,
                     'photo' => $category->photo,
+                    'order' => $branchCategory->order,
                 ],
-                'products' => $category->products->map(function($product) {
+                'products' => $products->map(function($product) {
                     return [
                         'id' => $product->id,
                         'name' => app()->getLocale() === 'ar' ? $product->name_ar : $product->name_en,
+                        'name_en' => $product->name_en,
+                        'name_ar' => $product->name_ar,
                         'description' => app()->getLocale() === 'ar' ? $product->description_ar : $product->description_en,
+                        'description_en' => $product->description_en,
+                        'description_ar' => $product->description_ar,
                         'selling_price' => $product->selling_price,
+                        'tax' => $product->tax,
                         'rating' => $product->rating,
+                        'total_rating' => $product->total_rating,
+                        'min_order' => $product->min_order,
+                        'available_quantity' => $product->available_quantity,
+                        'has_variation' => $product->has_variation,
                         'is_featured' => $product->is_featured,
+                        'is_favourite' => $product->is_favourite,
+                        'status' => $product->status,
+                        'attribute' => $product->attribute,
+                        'category_id' => $product->category_id,
+                        'unit_id' => $product->unit_id,
+                        'order' => $product->branch_order,
+                        'product_images' => $product->productImages,
+                        'product_reviews' => $product->productReviews,
+                        'variations' => $product->variations,
                     ];
                 })
             ]
